@@ -1,0 +1,37 @@
+// File: script.btc
+// Task: Advanced Bitcoin Scripting (Summation & 68% Logic)
+// Student ID Processed Input: S1=[4,0,3,4], S2=[3,2,2,9]
+
+// --- PHASE 1: Summation of S1 ---
+// Pushing digits for S1 manually and summing them up
+4 0 OP_ADD 3 OP_ADD 4 OP_ADD    
+// Stack State: [11] (Result of S1 Sum)
+
+// --- PHASE 1: Summation of S2 ---
+// Pushing digits for S2 manually
+3 2 OP_ADD 2 OP_ADD 9 OP_ADD    
+// Stack State: [11, 16] (Result of S2 Sum)
+
+// --- PHASE 2: Percentage Logic (68% Threshold) ---
+// Logic: Is S1 < (S2 * 0.68)?
+// Integer Math: Is S1 < (S2 * 68) / 100?
+
+OP_2DUP             // Stack: [11, 16, 11, 16] (Duplicate to preserve originals)
+68 OP_MUL           // Stack: [11, 16, 11, 1088] (S2 * 68)
+100 OP_DIV          // Stack: [11, 16, 11, 10] (Integer division result)
+OP_LESSTHAN         // Stack: [11, 16, 0] (Check: Is 11 < 10? Result: False/0)
+
+// --- PHASE 3: Conditional Execution ---
+OP_IF
+    // PATH A: Condition True (S1 < 68% S2)
+    // Requirement: Single Hash of S2
+    OP_SWAP         // Stack: [16, 11] (Bring S2 to top)
+    OP_DROP         // Stack: [16] (Remove S1)
+    OP_SHA256       // Stack: [H(S2)]
+OP_ELSE
+    // PATH B: Condition False (S1 >= 68% S2)
+    // Requirement: Double Hash of S1
+    OP_DROP         // Stack: [11] (Remove S2, Keep S1)
+    OP_SHA256       // Stack: [H(S1)]
+    OP_SHA256       // Stack: [H(H(S1))]
+OP_ENDIF
